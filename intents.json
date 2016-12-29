@@ -1,0 +1,14 @@
+{
+  "intents": [
+    {
+      "intent": "TestIntent"
+    },
+    {
+      "intent": "Ping"
+    },
+    {
+      "intent": "Bus"
+    }
+  ]
+}
+
