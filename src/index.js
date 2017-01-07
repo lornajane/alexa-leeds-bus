@@ -130,13 +130,24 @@ function handleBusRequest(intent, session, callback) {
             
             var i = 0;
             buses.forEach(function (bus) {
-                if(i < 7) {
-                    speak = speak + "There's a " + bus[1] + " about " + bus[3] + ". ";
+                if(i < 6) { // just stop after 6
+                    var suffix = '';
+                    if(bus[3].toLowerCase() == "due") {
+                        suffix = " due now";
+                    } else if(bus[3].toLowerCase().indexOf("mins") !== -1) {
+                        suffix = " in " + bus[3].replace("Mins", "minutes");
+                    } else if(bus[3].indexOf(":") !== -1) {
+                        suffix = " at " + bus[3];
+                    } else {
+                        suffix = " about " + bus[3];
+                    }
+                    speak = speak + "There's a " + bus[1] + suffix + ". \n";
                 }
                 i = i + 1;
             });
-           callback(session.attributes,
-                buildSpeechletResponseWithoutCard("The next bus is soon! " + speak, "", "true"));            
+
+            callback(session.attributes,
+                buildSpeechletResponseWithoutCard("Bus Departures! " + speak, "", "true"));            
         });
     });
 }
