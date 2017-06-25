@@ -2,10 +2,12 @@
 
 'use strict';
 var http = require('http');
+var util = require('util');
 
 // Route the incoming request based on type (LaunchRequest, IntentRequest,
 // etc.) The JSON body of the request is provided in the event parameter.
 exports.handler = function (event, context) {
+    // console.log(util.inspect(event, {"depth": 5}));
     try {
         console.log("event.session.application.applicationId=" + event.session.application.applicationId);
 
@@ -86,6 +88,9 @@ function onIntent(intentRequest, session, callback) {
     else if(intentName == 'Bus') {
         handleBusRequest(intent, session, callback);
     }
+    else if(intentName == 'Quiz') {
+        handleQuizRequest(intent, session, callback);
+    }
     else {
         // just do the test thing now to see things succeed
         handleTestRequest(intent, session, callback);
@@ -163,6 +168,53 @@ function handleBusRequest(intent, session, callback) {
     });
 }
 
+function handleQuizRequest(intent, session, callback) {
+
+    if(intent.slots.Number.value && (intent.slots.Number.value != "?")) {
+
+        var output = "You said " + intent.slots.Number.value + ", and the correct answer is ... " + session.attributes.correct;
+
+        if(intent.slots.Number.value == session.attributes.correct) {
+            output = output + ". Well done!";
+        }
+
+        callback(session.attributes,
+            buildSpeechletResponse("Lorna's Maths Quiz", output, "false"));
+
+    } else {
+
+        if(intent.slots.Number.value && (intent.slots.Number.value == "?")) {
+            // we didn't understand your previous answer
+            var output = "Sorry, I didn't understand. ";
+        } else {
+            var output = "Here's a quiz question: ";
+            
+            // new question
+            var a = Math.ceil(Math.random() * 5);
+            var b = Math.ceil(Math.random() * 5);
+            var correct = a + b;
+            var quiz = "What is " + a + " plus " + b + "?";
+
+            // store our variables for later
+            if (typeof session.attributes == 'undefined') {
+                session.attributes = {};
+            }
+            session.attributes.a = a;
+            session.attributes.b = b;
+            session.attributes.correct = correct;
+            session.attributes.quiz = quiz;
+        }
+
+        output = output + session.attributes.quiz;
+
+        // set up the prompt
+        var directive = {"type": "Dialog.ElicitSlot", "slotToElicit": "Number"};
+
+        callback(session.attributes,
+            buildSpeechletResponseWithDirectives("Lorna's Maths Quiz", output, [directive], "false"));
+    }
+}
+
 // ------- Helper functions to build responses -------
 
 function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
@@ -186,6 +238,22 @@ function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
     };
 }
 
+function buildSpeechletResponseWithDirectives(title, output, directives, shouldEndSession) {
+    return {
+        outputSpeech: {
+            type: "PlainText",
+            text: output
+        },
+        card: {
+            type: "Simple",
+            title: title,
+            content: output
+        },
+        directives: directives,
+        shouldEndSession: shouldEndSession
+    };
+}
+
 function buildSpeechletResponseWithoutCard(output, repromptText, shouldEndSession) {
     return {
         outputSpeech: {
@@ -203,6 +271,7 @@ function buildSpeechletResponseWithoutCard(output, repromptText, shouldEndSessio
 }
 
 function buildResponse(sessionAttributes, speechletResponse) {
+    console.log(speechletResponse);
     return {
         version: "1.0",
         sessionAttributes: sessionAttributes,

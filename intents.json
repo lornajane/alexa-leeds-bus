@@ -7,6 +7,9 @@
       "intent": "Ping"
     },
     {
+      "intent": "Quiz"
+    },
+    {
       "intent": "Bus"
     }
   ]
