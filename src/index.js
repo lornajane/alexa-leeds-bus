@@ -172,14 +172,14 @@ function handleQuizRequest(intent, session, callback) {
 
     if(intent.slots.Number.value && (intent.slots.Number.value != "?")) {
 
-        var output = "You said " + intent.slots.Number.value + ", and the correct answer is ... " + session.attributes.correct;
-
         if(intent.slots.Number.value == session.attributes.correct) {
-            output = output + ". Well done!";
+            var output =  "Well done!  " + intent.slots.Number.value + " is correct";
+        } else {
+            var output = "You said " + intent.slots.Number.value + ", but the correct answer is ... " + session.attributes.correct;
         }
 
         callback(session.attributes,
-            buildSpeechletResponse("Lorna's Maths Quiz", output, "false"));
+            buildSpeechletResponse("Lorna's Maths Quiz", output, "true"));
 
     } else {
 
@@ -187,7 +187,7 @@ function handleQuizRequest(intent, session, callback) {
             // we didn't understand your previous answer
             var output = "Sorry, I didn't understand. ";
         } else {
-            var output = "Here's a quiz question: ";
+            var output = "Ready? ";
             
             // new question
             var a = Math.ceil(Math.random() * 5);
