@@ -85,6 +85,9 @@ function onIntent(intentRequest, session, callback) {
     else if(intentName == 'Ping') {
         handlePingRequest(intent, session, callback);
     }
+    else if(intentName == 'Serverless') {
+        handleServerlessRequest(intent, session, callback);
+    }
     else if(intentName == 'Bus') {
         handleBusRequest(intent, session, callback);
     }
@@ -117,6 +120,11 @@ function handleTestRequest(intent, session, callback) {
 function handlePingRequest(intent, session, callback) {
     callback(session.attributes,
         buildSpeechletResponseWithoutCard("Ping ack", "", "true"));
+}
+
+function handleServerlessRequest(intent, session, callback) {
+    callback(session.attributes,
+        buildSpeechletResponseWithoutCard("Serverless is awesome", "", "true"));
 }
 
 function handleBusRequest(intent, session, callback) {
